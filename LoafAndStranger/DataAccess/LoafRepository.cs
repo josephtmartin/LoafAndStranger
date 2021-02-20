@@ -10,8 +10,8 @@ namespace LoafAndStranger.DataAccess
     {
         static List<Loaf> _loaves = new List<Loaf>
         {
-        new Loaf { Price = 5.50, Size = LoafSize.Medium, Sliced = true, Type = "Rye"},
-        new Loaf { Price = 2.50, Size = LoafSize.Small, Sliced = false, Type = "French"}
+        new Loaf {Id = 1, Price = 5.50, Size = LoafSize.Medium, Sliced = true, Type = "Rye"},
+        new Loaf {Id = 2, Price = 2.50, Size = LoafSize.Small, Sliced = false, Type = "French"}
         };
 
         public List<Loaf> GetAll()
@@ -21,6 +21,8 @@ namespace LoafAndStranger.DataAccess
 
         public void Add(Loaf loaf)
         {
+            var biggestExistingId = _loaves.Max(l => l.Id);
+            loaf.Id = biggestExistingId + 1;
             _loaves.Add(loaf);
         }
 

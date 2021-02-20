@@ -8,6 +8,7 @@ namespace LoafAndStranger.Models
     //Models are for storing pieces of information, not for having behavior
     public class Loaf
     {
+        public int Id { get; set; }
         public LoafSize Size { get; set; }
         public string Type { get; set; }
         public double Price { get; set; }
