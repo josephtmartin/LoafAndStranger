@@ -47,5 +47,25 @@ namespace LoafAndStranger.Controllers
             }
             return Ok(loaf);
         }
+
+        //Idempotency -> Idempotent
+        //PUT to /api/loaves/{id}/slice
+        //PUT to /api/loaves/4/slice
+        [HttpPut("{id}")]
+        public IActionResult SliceLoaf(int id)
+        {
+            var loaf = _repo.Get(id);
+
+            if (loaf.Sliced)
+            {
+                return NoContent();
+            }
+
+            loaf.Sliced = true;
+        }
+
+
+
+
     }
 }
