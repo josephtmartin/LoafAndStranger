@@ -41,7 +41,6 @@ namespace LoafAndStranger.Controllers
         public IActionResult GetById(int id)
         {
             var loaf = _repo.Get(id);
-
             if (loaf == null)
             {
                 return NotFound("This loaf id does not exist");

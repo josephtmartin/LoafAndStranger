@@ -26,6 +26,11 @@ namespace LoafAndStranger.DataAccess
             _loaves.Add(loaf);
         }
 
+        public Loaf Get(int id)
+        {
+            var loaf = _loaves.FirstOrDefault(bread => bread.Id == id);
+            return loaf;
+        }
 
     }
 }
