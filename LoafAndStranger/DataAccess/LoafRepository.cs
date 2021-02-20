@@ -32,5 +32,10 @@ namespace LoafAndStranger.DataAccess
             return loaf;
         }
 
+        public void Remove(int id)
+        {
+            var loafToRemove = Get(id);
+            _loaves.Remove(loafToRemove);
+        }
     }
 }

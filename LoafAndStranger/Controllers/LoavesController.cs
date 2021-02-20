@@ -51,21 +51,23 @@ namespace LoafAndStranger.Controllers
         //Idempotency -> Idempotent
         //PUT to /api/loaves/{id}/slice
         //PUT to /api/loaves/4/slice
-        [HttpPut("{id}")]
+        [HttpPut("{id}/slice")]
         public IActionResult SliceLoaf(int id)
         {
             var loaf = _repo.Get(id);
 
-            if (loaf.Sliced)
-            {
-                return NoContent();
-            }
-
             loaf.Sliced = true;
+
+            return NoContent();
         }
 
+        //DELETE to /api/loaves/{loafId}
+        [HttpDelete("{loafId}")]
+        public IActionResult PurchaseLoaf(int loafId)
+        {
+            _repo.Remove(loafId);
 
-
-
+            return Ok();
+        }
     }
 }
