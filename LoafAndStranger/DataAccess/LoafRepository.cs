@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using LoafAndStranger.Models;
 using Microsoft.Data.SqlClient;
+using Dapper;
 
 namespace LoafAndStranger.DataAccess
 {
@@ -13,54 +14,27 @@ namespace LoafAndStranger.DataAccess
 
         public List<Loaf> GetAll()
         {
-            var loaves = new List<Loaf>();
+            using var db = new SqlConnection(ConnectionString);
 
-            //create a connection
-            using var connection = new SqlConnection(ConnectionString);
+            var sql = @"SELECT * 
+                        FROM Loaves";
 
-            //open the connection
-            connection.Open();
-
-            //create a command
-            var command = connection.CreateCommand();
-
-            //telling the command what you want to do
-            command.CommandText = @"SELECT * 
-                                    FROM Loaves";
-
-            //send the command to SQL server
-            //execute the command
-            var reader = command.ExecuteReader();
-
-            //loop over our results
-            //Read() returns a bool
-            while (reader.Read()) //reader.Read() pulls one row at a time from the db
-            {
-                //add it to the list
-                loaves.Add(MapLoaf(reader));
-            }
-            return loaves;
+            //when i execute a query what kind of thing should i return the results to
+            //have to pass what the query is in the ()
+            var results = db.Query<Loaf>(sql).ToList();
+            return results;
         }
 
         public void Add(Loaf loaf)
         {
-            //created and opened a connection
-            using var connection = new SqlConnection(ConnectionString);
-            connection.Open();
-
-            //create command
-            var command = connection.CreateCommand();
-            command.CommandText = @"INSERT INTO [dbo].[Loaves] ([Size], [Type], [WeightInOunces], [Price], [Sliced])
+            var sql = @"INSERT INTO [dbo].[Loaves] ([Size], [Type], [WeightInOunces], [Price], [Sliced])
                                     OUTPUT inserted.Id
                                     VALUES(@Size, @Type, @WeightInOunces, @Price, @Sliced)";
 
-            command.Parameters.AddWithValue("Size", loaf.Size);
-            command.Parameters.AddWithValue("Type", loaf.Type);
-            command.Parameters.AddWithValue("WeightInOunces", loaf.WeightInOunces);
-            command.Parameters.AddWithValue("Price", loaf.Price);
-            command.Parameters.AddWithValue("Sliced", loaf.Sliced);
+            using var db = new SqlConnection(ConnectionString);
 
-            var id = (int)command.ExecuteScalar();
+            //passing the whole loaf class(with all it's properties) as the substitution values for the query
+            var id = db.ExecuteScalar<int>(sql, loaf);
 
             loaf.Id = id;
         }
@@ -70,65 +44,23 @@ namespace LoafAndStranger.DataAccess
             var sql = @"SELECT *
                         FROM Loaves
                         WHERE Id = @id";
-            //create a connection
-            using var connection = new SqlConnection("Server=localhost;Database=LoafAndStranger;Trusted_Connection=True;");
-            connection.Open();
 
-            //create a command
-            var command = connection.CreateCommand();
-            command.CommandText = sql;
-            command.Parameters.AddWithValue("id", id);
+            using var db = new SqlConnection("Server=localhost;Database=LoafAndStranger;Trusted_Connection=True;");
 
-            //execute the command
-            var reader = command.ExecuteReader();
+            var loaf = db.QueryFirstOrDefault<Loaf>(sql, new { id = id });
 
-            //only expect one thing so no need to loop since Read() returns a bool
-            if (reader.Read())
-            {
-                var loaf = MapLoaf(reader);
-                return loaf;
-            }
-
-            return null;
+            return loaf;
         }
 
         public void Remove(int id)
         {
+            using var db = new SqlConnection(ConnectionString);
 
-            using var connection = new SqlConnection(ConnectionString);
-            connection.Open();
+            var sql = @"DELETE
+                        FROM Loaves
+                        WHERE Id = @id";
 
-            var cmd = connection.CreateCommand();
-            cmd.CommandText = @"DELETE
-                                FROM Loaves
-                                WHERE Id = @id";
-
-            cmd.Parameters.AddWithValue("id", id);
-
-            cmd.ExecuteNonQuery();
-        }
-
-        Loaf MapLoaf(SqlDataReader reader)
-        {
-            var id = (int)reader["Id"]; //explicit cast (throws exception)
-            var size = (LoafSize)reader["Size"];
-            var type = reader["Type"] as string; //implicit cast (returns a null if it cant change a thing into that type)
-            var weightInOunces = (int)reader["weightInOunces"];
-            var price = (decimal)reader["Price"];
-            var sliced = (bool)reader["Sliced"];
-            var createdDate = (DateTime)reader["createdDate"];
-
-            //make a loaf
-            var loaf = new Loaf
-            {
-                Id = id,
-                Size = size,
-                Type = type,
-                WeightInOunces = weightInOunces,
-                Price = price,
-                Sliced = sliced,
-            };
-            return loaf;
+            db.Execute(sql, new { id });
         }
     }
 }
