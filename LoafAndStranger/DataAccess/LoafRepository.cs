@@ -57,8 +57,8 @@ namespace LoafAndStranger.DataAccess
             using var db = new SqlConnection(ConnectionString);
 
             var sql = @"DELETE
-                                FROM Loaves
-                                WHERE Id = @id";
+                        FROM Loaves
+                        WHERE Id = @id";
 
             db.Execute(sql, new { id });
         }
