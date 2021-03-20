@@ -54,10 +54,19 @@ namespace LoafAndStranger.Controllers
         [HttpPut("{id}/slice")]
         public IActionResult SliceLoaf(int id)
         {
+            //Option 1:
+            //less efficient
             var loaf = _repo.Get(id);
 
             loaf.Sliced = true;
 
+            _repo.Update(loaf);
+
+            //Option 2:
+            //more efficient
+            _repo.Slice(id);
+
+            //Constant
             return NoContent();
         }
 
