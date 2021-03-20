@@ -62,5 +62,33 @@ namespace LoafAndStranger.DataAccess
 
             db.Execute(sql, new { id });
         }
+
+        public void Update(Loaf loaf)
+        {
+            using var db = new SqlConnection(ConnectionString);
+
+            var sql = @"UPDATE Loaves
+                        SET Price = @price,
+                            Size = @size,
+	                        WeightInOunces = @weightInOunces,
+	                        Sliced = @Sliced,
+	                        [Type] = @Type
+                        WHERE Id = @id";
+
+            db.Execute(sql, loaf);
+        }
+
+        public void Slice(int id)
+        {
+            using var db = new SqlConnection(ConnectionString);
+
+            var sql = @"UPDATE Loaves
+                        SET Sliced = 1,
+                        WHERE Id = @id";
+
+            db.Execute(sql, new { id });
+        }
+
+
     }
 }
